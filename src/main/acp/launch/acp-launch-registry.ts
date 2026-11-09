@@ -24,6 +24,7 @@ import { GROK_TRANSCRIPT_IMPORT } from '../../grok/grok-transcript-import'
 import { OPENCODE_SESSION_HISTORY } from '../../opencode/opencode-session-history'
 import { OPENCODE_TRANSCRIPT_IMPORT } from '../../opencode/opencode-transcript-import'
 import { assertOpenCodeCopyUsesLocalStore } from '../../../shared/opencode-launch-command'
+import { DSH_LAUNCH_SPEC } from '../../dsh/dsh-acp-launch-spec'
 import { OMP_SESSION_HISTORY } from '../../omp/omp-session-history'
 import { OMP_TRANSCRIPT_IMPORT } from '../../omp/omp-transcript-import'
 import { ANTIGRAVITY_LAUNCH_SPEC } from '../../antigravity/antigravity-acp-launch-spec'
@@ -154,6 +155,7 @@ export const ACP_LAUNCH_SPECS: readonly AcpLaunchSpec[] = [
   OPENCODE_LAUNCH_SPEC,
   OPENCODE2_LAUNCH_SPEC,
   OMP_LAUNCH_SPEC,
+  DSH_LAUNCH_SPEC,
   ANTIGRAVITY_LAUNCH_SPEC
 ]
 
