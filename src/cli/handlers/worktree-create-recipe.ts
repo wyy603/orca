@@ -29,7 +29,7 @@ function formatRecipeCreated(value: RecipeWorktreeCreateResult): string {
   return [
     formatWorktreeShow(value),
     `recipe: ${value.recipe.id} (${value.recipe.checkoutMode})`,
-    `environment: ${value.recipe.environmentId}`,
+    `server: ${value.recipe.environmentId}`,
     ...(value.environmentWarnings ?? []).map((warning) => `warning: ${warning}`)
   ].join('\n')
 }
@@ -39,7 +39,7 @@ export async function assertRecipeHost(client: RuntimeClient): Promise<void> {
   if (client.isRemote) {
     throw new RuntimeClientError(
       'invalid_argument',
-      'Run recipe commands on the computer whose Orca provisions the recipe, without --environment or --pairing-code.'
+      'Run recipe commands on the computer whose Orca provisions the recipe, without --server or --pairing-code.'
     )
   }
   const status = await client.call<RuntimeStatus>('status.get')
@@ -61,11 +61,11 @@ export async function createWorktreeOnRecipe(args: {
   json: boolean
 }): Promise<void> {
   const { client, create, recipeId, launch, json, flags } = args
-  const parentFlag = ['parent-worktree', 'parent-environment'].find((name) => flags.has(name))
+  const parentFlag = ['parent-worktree', 'parent-server'].find((name) => flags.has(name))
   if (parentFlag) {
     throw new RuntimeClientError(
       'invalid_argument',
-      `--${parentFlag} is not supported with --recipe yet: the new workspace lives on another host, so Orca records no parent for it.`
+      `--${parentFlag} is not supported with --recipe yet: the new workspace lives on another server, so Orca records no parent for it.`
     )
   }
   if (flags.get('activate') === true) {
@@ -140,7 +140,7 @@ export async function createWorktreeOnRecipe(args: {
     launch.agent,
     '--worktree',
     worktree,
-    '--environment',
+    '--server',
     `id:${environmentId}`
   ]
   for (const name of ['model', 'effort', 'surface']) {

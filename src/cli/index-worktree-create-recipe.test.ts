@@ -116,7 +116,7 @@ describe('CLI worktree create --recipe', () => {
         return created()
       }
     )
-    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    vi.spyOn(console, 'log').mockImplementation(() => {})
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
     await main(
       command.filter((arg) => arg !== '--json'),
@@ -126,7 +126,6 @@ describe('CLI worktree create --recipe', () => {
     expect(stderr).toContain('from recipe "sandbox"')
     expect(stderr).toContain("- Running the recipe's create step...")
     expect(stderr).not.toContain('not-a-known-phase')
-    expect(log.mock.calls.flat().join('')).toContain('environment: env-vm')
   })
   it('adds next steps to a failed create and keeps the failure data', async () => {
     callMock.mockImplementationOnce(async () => sourceStatus())

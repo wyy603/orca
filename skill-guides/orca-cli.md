@@ -157,11 +157,11 @@ Lineage rules:
 Per-workspace environment recipes: `ORCA vm recipe list --repo id:<repoId> --json` lists the
 recipes `--recipe` accepts. `ORCA worktree create --name task --recipe <id> --no-parent --json`
 runs the recipe's create step and creates the workspace on the new environment's Orca server. Run
-it on the computer whose Orca desktop app owns the recipe; omit `--environment` and `--pairing-code`.
+it on the computer whose Orca desktop app owns the recipe; omit `--server` and `--pairing-code`.
 It can take minutes; without `--json`, named progress steps print to stderr. Provisioned-root recipes
 own setup, so `--setup run` and `--run-hooks` are refused for them. Add `--agent`, `--prompt`,
 `--model`, or `--effort` to launch on the new environment. The result's `recipe.environmentId` is the
-environment for follow-up commands (`--environment id:<id>`). On failure the error code is
+server for follow-up commands (`--server id:<id>`). On failure the error code is
 `recipe_workspace_create_failed`; `data.phase` names the failed step and `data.environment` says
 whether Orca destroyed the new environment. Never retry with `--retry-launch`; after a failed agent
 launch, use the returned `agent launch` recovery command against the existing workspace.
