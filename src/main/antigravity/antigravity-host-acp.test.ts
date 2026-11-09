@@ -150,7 +150,7 @@ it.skipIf(process.platform === 'win32')(
 )
 
 it.skipIf(process.platform === 'win32')(
-  "agy's API-key mode keeps new chats on Orca's runtime, since host chats drop the key",
+  "agy's API-key mode pins the host's agy, whose launch keeps GEMINI_API_KEY",
   async () => {
     vi.stubEnv('ELECTRON_RUN_AS_NODE', '1')
     const stateDirectory = await mkdtemp(join(tmpdir(), 'orca-agy-state-test-'))
@@ -164,6 +164,23 @@ it.skipIf(process.platform === 'win32')(
       return selectAcpHostAccountHome(ANTIGRAVITY_LAUNCH_SPEC, shellEnv, stateDirectory, {})
     }
     await expect(select('{"model":"Gemini 4 Argon (Medium)"}')).resolves.not.toBeNull()
-    await expect(select('{"modelProvider":"gemini"}')).resolves.toBeNull()
+    // An API-key provider serves sessions without a stored sign-in, so it is a usable credential.
+    agyCredential.present = false
+    await expect(select('{"modelProvider":"gemini"}')).resolves.toEqual({
+      variable: 'GEMINI_HOME',
+      path: join(home, '.gemini')
+    })
+    agyCredential.present = true
   }
 )
+
+it('the host launch keeps agy\'s key and drops the other auth variable', () => {
+  const env: Record<string, string> = {
+    GEMINI_API_KEY: 'key',
+    GOOGLE_API_KEY: 'other',
+    PATH: '/usr/bin'
+  }
+  const removed = ANTIGRAVITY_LAUNCH_SPEC.hostBackend!.spec.scrubEnvironment!(env, {})
+  expect(removed).toEqual(['GOOGLE_API_KEY'])
+  expect(env).toEqual({ GEMINI_API_KEY: 'key', PATH: '/usr/bin' })
+})

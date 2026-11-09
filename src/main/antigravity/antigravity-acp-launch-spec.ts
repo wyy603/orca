@@ -77,9 +77,11 @@ const ANTIGRAVITY_MANAGED_LAUNCH_SPEC = {
   launchGate: ANTIGRAVITY_LAUNCH_GATE
 } satisfies AcpLaunchSpec
 
-// An inherited Gemini API key switches agy to key auth, which its models reject (401).
+// The host's agy may serve sessions from its own Gemini API key: `GEMINI_API_KEY` is the key
+// provider its settings select (`modelProvider`), so that variable must reach the child.
+// `GOOGLE_API_KEY` still selects a different auth path, which host chats do not run.
 function scrubAgyHostApiKeys(env: Record<string, string>): string[] {
-  const removed = ['GEMINI_API_KEY', 'GOOGLE_API_KEY']
+  const removed = ['GOOGLE_API_KEY']
   for (const key of removed) {
     delete env[key]
   }
@@ -133,23 +135,42 @@ function savedChatAuthIsPersonal(value: unknown): boolean {
   return parsed.success && parsed.data.method === 'oauth-personal'
 }
 
+type SelectHostBackend = NonNullable<AcpLaunchSpec['hostBackend']>['select']
+
+// Someone signed in to Orca's own Chat keeps it. The host's agy needs a credential that serves
+// sessions, which is either a stored Google sign-in or its own API-key provider: the host launch
+// keeps `GEMINI_API_KEY`, so key mode reaches the child just like a sign-in does.
+const selectAntigravityHostBackend: SelectHostBackend = async ({
+  command,
+  env,
+  envToDelete,
+  homePath,
+  stateDirectory,
+  settings
+}) => {
+  if (!savedChatAuthIsPersonal(settings.antigravityChatAuth)) {
+    return null
+  }
+  if (antigravityChatSignIn.get().value.auth === 'signedIn') {
+    return null
+  }
+  if (await hasManagedAntigravityChatSignIn(join(stateDirectory, ANTIGRAVITY_CHAT_HOME_FOLDER))) {
+    return null
+  }
+  if (!(await agyUsesApiKey(homePath)) && !(await hasAgyCredential(homePath))) {
+    return null
+  }
+  if (!(await antigravityHostAcpReady(command, env, envToDelete))) {
+    return null
+  }
+  return antigravityHostAccountHome(homePath)
+}
+
 export const ANTIGRAVITY_LAUNCH_SPEC = {
   ...ANTIGRAVITY_MANAGED_LAUNCH_SPEC,
   hostBackend: {
     spec: ANTIGRAVITY_HOST_LAUNCH_SPEC,
     pins: isAntigravityHostAccountHome,
-    // Someone signed in to Orca's own Chat keeps it; the host's agy needs a sign-in that serves
-    // sessions, not an API-key provider whose key the host launch drops.
-    select: async ({ command, env, envToDelete, homePath, stateDirectory, settings }) =>
-      savedChatAuthIsPersonal(settings.antigravityChatAuth) &&
-      antigravityChatSignIn.get().value.auth !== 'signedIn' &&
-      !(await hasManagedAntigravityChatSignIn(
-        join(stateDirectory, ANTIGRAVITY_CHAT_HOME_FOLDER)
-      )) &&
-      !(await agyUsesApiKey(homePath)) &&
-      (await hasAgyCredential(homePath)) &&
-      (await antigravityHostAcpReady(command, env, envToDelete))
-        ? antigravityHostAccountHome(homePath)
-        : null
+    select: selectAntigravityHostBackend
   }
 } satisfies AcpLaunchSpec
