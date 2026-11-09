@@ -74,7 +74,7 @@ export async function sendRequest<TResult>(
       reject(
         new RuntimeClientError(
           'runtime_timeout',
-          'Timed out waiting for the Orca runtime to respond.'
+          'Timed out waiting for the Orca server to respond.'
         )
       )
     }, timeoutMs)
@@ -149,7 +149,7 @@ export async function sendRequest<TResult>(
             ok: false,
             error: new RuntimeClientError(
               'invalid_runtime_response',
-              'The Orca runtime returned an invalid response frame.'
+              'The Orca server returned an invalid response frame.'
             )
           })
           return
@@ -173,7 +173,7 @@ export async function sendRequest<TResult>(
             ok: false,
             error: new RuntimeClientError(
               'invalid_runtime_response',
-              'The Orca runtime returned an invalid response frame.'
+              'The Orca server returned an invalid response frame.'
             )
           })
           return
@@ -191,7 +191,7 @@ export async function sendRequest<TResult>(
             ok: false,
             error: new RuntimeClientError(
               'invalid_runtime_response',
-              'The Orca runtime returned a mismatched response id.'
+              'The Orca server returned a mismatched response id.'
             )
           })
           return
@@ -201,7 +201,7 @@ export async function sendRequest<TResult>(
             ok: false,
             error: new RuntimeClientError(
               'runtime_unavailable',
-              'The Orca runtime changed while the request was in flight.',
+              'The Orca server changed while the request was in flight.',
               { nextSteps: ['Retry the command.'] }
             )
           })
