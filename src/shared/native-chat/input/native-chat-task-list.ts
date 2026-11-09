@@ -13,6 +13,10 @@ export type NativeChatTaskListTool = 'todowrite' | 'update_plan'
 
 export function nativeChatTaskListTool(name: string): NativeChatTaskListTool | null {
   const normalized = name.trim().toLowerCase()
+  // DeepSeek Harness spells its whole-list tool `todo_write`; it shares TodoWrite's payload.
+  if (normalized === 'todo_write') {
+    return 'todowrite'
+  }
   return normalized === 'todowrite' || normalized === 'update_plan' ? normalized : null
 }
 

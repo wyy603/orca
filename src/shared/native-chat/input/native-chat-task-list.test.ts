@@ -16,6 +16,7 @@ describe('normalizeNativeChatTaskList', () => {
   it('keeps empty lists valid and recognizes only exact tool families', () => {
     expect(normalizeNativeChatTaskList('update_plan', { plan: [] })).toEqual(list())
     expect(normalizeNativeChatTaskList('TodoWrite', { todos: [] })).toEqual(list())
+    expect(normalizeNativeChatTaskList('todo_write', { todos: [] })).toEqual(list())
     expect(normalizeNativeChatTaskList('mcp__server__TodoWrite', { todos: [] })).toBeNull()
     expect(normalizeNativeChatTaskList('ExitPlanMode', { plan: [] })).toBeNull()
     expect(normalizeNativeChatTaskList('update_plan', { todos: [] })).toBeNull()
